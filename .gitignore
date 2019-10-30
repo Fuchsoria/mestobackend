@@ -59,3 +59,8 @@ typings/
 
 # next.js build output
 .next
+
+# Optional REPL history
+.DS_Store
+.idea
+
