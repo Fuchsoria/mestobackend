@@ -6,22 +6,22 @@ const cardSchema = mongoose.Schema({
     required: true,
     minlength: 2,
     maxlength: 30,
-    type: String
+    type: String,
   },
   link: {
     required: true,
-    type: String
+    type: String,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: true
+    required: true,
   },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
   createdAt: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
 cardSchema.path('link').validate(urlcheck, 'Invalid Link');
