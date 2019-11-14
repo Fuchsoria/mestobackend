@@ -1,20 +1,24 @@
-const path = require('path');
 const express = require('express');
-const usersRouter = require('./routes/users');
-const cardsRouter = require('./routes/cards');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-const {
-  PORT = 3000,
-} = process.env;
+const { PORT = 3000 } = process.env;
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/', usersRouter);
-app.use('/', cardsRouter);
+mongoose.connect('mongodb://localhost:27017/mestodb', {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
 
-app.use((req, res) => res.status(404).send({
-  message: 'Запрашиваемый ресурс не найден',
-}));
+app.use(bodyParser.json());
+app.use((req, res, next) => {
+  req.user = {
+    _id: '5dcb4ff4b1fa3610acf4dfd1',
+  };
+  next();
+});
+app.use(require('./routes'));
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
