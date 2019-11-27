@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const routes = require('./routes');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -12,13 +15,9 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5dcb4ff4b1fa3610acf4dfd1',
-  };
-  next();
-});
-app.use(require('./routes'));
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use('/', auth, routes);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
