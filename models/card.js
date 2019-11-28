@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { urlcheck } = require('../modules/urlcheck');
+const validator = require('validator');
 
 const cardSchema = mongoose.Schema({
   name: {
@@ -24,6 +24,6 @@ const cardSchema = mongoose.Schema({
   },
 });
 
-cardSchema.path('link').validate(urlcheck, 'Invalid Link');
+cardSchema.path('link').validate(validator.isURL, 'Invalid Link');
 
 module.exports = mongoose.model('card', cardSchema);

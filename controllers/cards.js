@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const { checkErrorStatus, checkErrorMessage } = require('../modules/checkError');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -9,15 +10,27 @@ const getCards = (req, res) => {
 const createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.cardId)
-    .orFail(() => ({ message: 'Нет карточки с таким id', status: 404 }))
-    .then((card) => res.send(card))
-    .catch((err) => res.status(err.status || 500).send({ message: `${err.message || err}` }));
+  const { _id } = req.user;
+  const { cardId } = req.params;
+
+  Card.findOne({ _id: cardId })
+    .orFail(() => new Error('404|Нет карточки с таким id'))
+    // eslint-disable-next-line consistent-return
+    .then((card) => {
+      if (_id === String(card.owner)) {
+        Card.findByIdAndDelete(cardId)
+          .then((result) => res.send(result))
+          .catch((err) => res.status(500).send({ message: err.message }));
+      } else {
+        return Promise.reject(new Error('403|Вы можете удалять только свои карточки'));
+      }
+    })
+    .catch((err) => res.status(checkErrorStatus(err)).send({ message: checkErrorMessage(err) }));
 };
 
 const setLike = (req, res) => {
@@ -28,8 +41,9 @@ const setLike = (req, res) => {
     },
     { new: true },
   )
+    .orFail(() => new Error('404|Карточка не существует'))
     .then((card) => res.send(card))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => res.status(checkErrorStatus(err)).send({ message: checkErrorMessage(err) }));
 };
 
 const removeLike = (req, res) => {
