@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { checkErrorStatus, checkErrorMessage } = require('../modules/checkError');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -11,9 +12,9 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   const { id } = req.params;
   User.findById(id)
-    .orFail(() => ({ message: 'Нет пользователя с таким id', status: 404 }))
+    .orFail(() => new Error('404|Нет пользователя с таким id'))
     .then((user) => res.send(user))
-    .catch((err) => res.status(err.status || 500).send({ message: `${err.message || err}` }));
+    .catch((err) => res.status(checkErrorStatus(err)).send({ message: checkErrorMessage(err) }));
 };
 
 const createUser = (req, res) => {
@@ -24,7 +25,7 @@ const createUser = (req, res) => {
     .then((hash) => User.create({
       email, password: hash, name, about, avatar,
     }))
-    .then((user) => res.send({
+    .then((user) => res.status(201).send({
       _id: user._id, email: user.email, name: user.name, about: user.about, avatar: user.avatar,
     }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
@@ -56,7 +57,7 @@ const login = (req, res) => {
           if (!matched) {
             return Promise.reject(new Error('Неправильная почта или пароль'));
           }
-          const token = jwt.sign({ _id: user._id }, 'Ahgj8RT3OLaB9Nbv8s4dT7tIO');
+          const token = jwt.sign({ _id: user._id }, 'Ahgj8RT3OLaB9Nbv8s4dT7tIO', { expiresIn: '7d' });
           return res.cookie('jwt', token, {
             maxAge: 25200000,
             httpOnly: true,
