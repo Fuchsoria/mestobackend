@@ -1,23 +1,28 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { checkErrorStatus, checkErrorMessage } = require('../modules/checkError');
+const NotFoundError = require('../errors/NotFoundError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const getUsers = (req, res) => {
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { id } = req.params;
   User.findById(id)
-    .orFail(() => new Error('404|Нет пользователя с таким id'))
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
+    })
     .then((user) => res.send(user))
-    .catch((err) => res.status(checkErrorStatus(err)).send({ message: checkErrorMessage(err) }));
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -28,36 +33,38 @@ const createUser = (req, res) => {
     .then((user) => res.status(201).send({
       _id: user._id, email: user.email, name: user.name, about: user.about, avatar: user.avatar,
     }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch(next);
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch(next);
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch(next);
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильная почта или пароль'));
+        throw new UnauthorizedError('Неправильная почта или пароль');
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Неправильная почта или пароль'));
+            throw new UnauthorizedError('Неправильная почта или пароль');
           }
-          const token = jwt.sign({ _id: user._id }, 'Ahgj8RT3OLaB9Nbv8s4dT7tIO', { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id },
+            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+            { expiresIn: '7d' });
           return res.cookie('jwt', token, {
             maxAge: 25200000,
             httpOnly: true,
@@ -65,7 +72,7 @@ const login = (req, res) => {
           }).end();
         });
     })
-    .catch((err) => res.status(401).send({ message: err.message }));
+    .catch(next);
 };
 
 module.exports = {
