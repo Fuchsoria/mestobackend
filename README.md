@@ -1,38 +1,36 @@
+# Mestobackend
+Server part for the Mesto gallery site.
+Test Link: https://mesto-api.fuchsoria.dev
 
-
-# Mestobackend [RU Lang] v0.9
-Серверная часть для сайта галереи Mesto.
-Ссылки для теста: http://84.201.170.58:3000/ либо https://api.mesto.sehen.tech/
-
-### Функционал:
-| ЗАПРОС | ОТВЕТ |
+### Functional:
+| Request | Response |
 |--|--|
-| GET /users | JSON-список всех пользователей |
-| GET /users/{id} | JSON-пользователя с переданным после /users идентификатором|
-| POST /users | Создаёт пользователя и возвращает JSON, принимает на вход JSON в body: `{ "name": "Имя", "about": "Обо мне", "avatar": "https://avatar.url" }`  |
-| PATCH /users/me | Обновляет профиль и возвращает JSON, принимает на вход JSON в body: `{ "name": "Имя", "about": "Обо мне" }` |
-| PATCH /users/me/avatar | Обновляет аватар пользователя и возвращает JSON, принимает на вход JSON в body: `{ "avatar": "https://avatar.url" }` |
-| GET /cards | JSON-список всех карточек |
-| POST /cards | Создаёт карточку и возвращает JSON, принимает на вход JSON в body: `{ "name": "Имя карточки", "link": "https://card.url" }`|
-| PUT /cards/{cardId}/likes | Добавляет пользователя в список лайкнувших и возвращает карточку |
-| DELETE /cards/{cardId}/likes | Удаляет пользователя из списока лайкнувших и возвращает карточку |
-| Несуществующий адрес | `{ "message": "Запрашиваемый ресурс не найден" }` |
+| GET /users | JSON-list of all users |
+| GET /users/{id} | JSON-user with identifier passed after /users|
+| POST /users | Creates a user and returns JSON, accepts JSON input in body: `{ "name": "Name", "about": "About me", "avatar": "https://avatar.url" }`  |
+| PATCH /users/me | Updates the profile and returns JSON, accepts input JSON in the body: `{ "name": "Name", "about": "About me" }` |
+| PATCH /users/me/avatar | Updates user avatar and returns JSON, accepts JSON input in body: `{ "avatar": "https://avatar.url" }` |
+| GET /cards | JSON-list of all cards |
+| POST /cards | Creates a card and returns JSON, receives input JSON in body: `{ "name": "Card name", "link": "https://card.url" }`|
+| PUT /cards/{cardId}/likes | Adds the user to the list of likes and returns a card |
+| DELETE /cards/{cardId}/likes | Removes the user from the list of likes and returns the card |
+| Nonexistent address | `{ "message": "The requested resource is not found" }` |
 
 
-## Установка
-Для установки необходимо наличие установленного nodejs и npm.
+## Installation
+For installation, you must have installed nodejs и npm.
 
-Сохраните проект у себя на компьютере:
+Save the project to your computer:
 
-    git clone https://github.com/SehenQQ/mestobackend.git
+    git clone https://github.com/Fuchsoria/mestobackend.git
 
-В корне проекта через консоль/терминал запустите команду:
+In the root of the project, through the console / terminal, run the command:
 
     npm install
-### После успешной установки станут доступны команды: 
-Поднятие локального сервера с хотрелоадом:
+### After successful installation, the commands become available.: 
+Raising a local server with a hotload:
 
     npm run dev
-Запуск продакшн сервера:
+Starting production server:
 
     npm run start
