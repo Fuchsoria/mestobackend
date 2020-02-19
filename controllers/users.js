@@ -16,7 +16,7 @@ const getUserById = (req, res, next) => {
   const { id } = req.params;
   User.findById(id)
     .orFail(() => {
-      throw new NotFoundError('Нет пользователя с таким id');
+      throw new NotFoundError('User not found');
     })
     .then((user) => res.send(user))
     .catch(next);
@@ -55,12 +55,12 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправильная почта или пароль');
+        throw new UnauthorizedError('Invalid email or password');
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Неправильная почта или пароль');
+            throw new UnauthorizedError('Invalid email or password');
           }
           const token = jwt.sign({ _id: user._id },
             NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',

@@ -21,7 +21,7 @@ const deleteCard = (req, res, next) => {
 
   Card.findOne({ _id: cardId })
     .orFail(() => {
-      throw new NotFoundError('Карточка не существует');
+      throw new NotFoundError('Card does not exist');
     })
     // eslint-disable-next-line consistent-return
     .then((card) => {
@@ -30,7 +30,7 @@ const deleteCard = (req, res, next) => {
           .then((result) => res.send(result))
           .catch(next);
       } else {
-        throw new ForbiddenError('Вы можете удалять только свои карточки');
+        throw new ForbiddenError('You can only delete your cards');
       }
     })
     .catch(next);
@@ -45,7 +45,7 @@ const setLike = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError('Карточка не существует');
+      throw new NotFoundError('Card does not exist');
     })
     .then((card) => res.send(card))
     .catch(next);

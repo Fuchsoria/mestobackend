@@ -6,7 +6,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Необходима авторизация');
+    throw new UnauthorizedError('Unauthorized');
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (e) {
-    const err = new Error('Необходима авторизация');
+    const err = new Error('Unauthorized');
     err.statusCode = 401;
 
     next(err);

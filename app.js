@@ -29,7 +29,6 @@ app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
 
-// Логирование запросов
 app.use(requestLogger);
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -53,13 +52,10 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use('/', auth, routes);
 
-// Логирование ошибок
 app.use(errorLogger);
 
-// Обработчик ошибок celebrate
 app.use(errors());
 
-// Централизованный обработчик ошибок
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
